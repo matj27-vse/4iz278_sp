@@ -47,7 +47,7 @@
             ])
         ) {
             $appointmentId = $db->lastInsertId();
-            //todo odeslat email
+            //todo odeslat email lékaři
         } else {
             $errors['reservation'] = 'Došlo k chybě při vytváření rezervace.';
         }
@@ -85,6 +85,10 @@
                 E-mail na lékaře: <?php echo htmlspecialchars($doctor['email']); ?>
             </li>
         </ul>
+        <p>
+            Upozorňujeme, že Vámi zarezervovaná návštěva musí být potvrzená ošetřujícím lékařem.<br />
+            Před návštěvou ordinace vyčkejte, prosím, na potvrzovací e-mail.
+        </p>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php" class="mr-1 btn btn-primary">Pokračovat</a>
         <?php
     }
