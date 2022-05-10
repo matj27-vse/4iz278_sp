@@ -37,7 +37,8 @@
 
             $occupiedTimeSlots = $query->fetchAll(PDO::FETCH_ASSOC);
             for ($i = 0; $i < count($occupiedTimeSlots); ++$i) {
-                $occupiedTimeSlots[$i] = strtotime($date . 't' . $occupiedTimeSlots[$i]['time']);
+                //$occupiedTimeSlots[$i] = strtotime($date . 't' . $occupiedTimeSlots[$i]['time']);
+                $occupiedTimeSlots[$i] = $occupiedTimeSlots[$i]['timestamp'];
             }
 
             $schedule = calculateFreeTimeSlots($boundaries, $date, $occupiedTimeSlots);

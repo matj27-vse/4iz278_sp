@@ -37,8 +37,8 @@
 
     #region vytvoreni rezervace
     if (empty($errors)) {
-        $insertQuery = $db->prepare('INSERT INTO appointments (timestamp, patient_id, doctor_id) 
-                                            VALUES (:timestamp, :patient_id, :doctor_id);');
+        $insertQuery = $db->prepare('INSERT INTO appointments (timestamp, patient_id, doctor_id, confirmed) 
+                                            VALUES (:timestamp, :patient_id, :doctor_id, 0);');
         if (
             $insertQuery->execute([
                 ':timestamp' => $_GET['timestamp'],
@@ -67,7 +67,7 @@
         echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php" class="mr-1 btn btn-primary">Pokračovat</a>';
     } else {
         ?>
-        <div class="alert alert-success" role="alert">Rezervace byla úspěšně vytvořena!</div>
+        <div class="alert alert-success" role="alert">Rezervace byla vytvořena. Vyčkejte na potvrzovací e-mail od lékaře.</div>
         <ul class="list-group">
             <li class="list-group-item">
                 Číslo rezervace: <?php echo htmlspecialchars($appointmentId); ?>
