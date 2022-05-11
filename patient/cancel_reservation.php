@@ -1,9 +1,66 @@
 <?php
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_patient.php';
 
+    $selectView = 'SELECT 
+                        appointments.appointment_id, 
+                        appointments.timestamp, 
+                        appointments.confirmed, 
+                        doctors.doctor_id, 
+                        doctors.given_name AS doctor_given_name,
+                        doctors.family_name AS doctor_family_name,
+                        doctors.email AS doctor_email,
+                        patients.patient_id,
+                        patients.given_name AS patient_given_name,
+                        patients.family_name AS patient_family_name,
+                        patients.email AS patient_email
+                    FROM appointments
+                    JOIN doctors ON appointments.doctor_id = doctors.doctor_id
+                    JOIN patients ON appointments.patient_id = patients.patient_id';
+
+    function sendMailToDoctor($appointment) {
+        $chyby = [];
+
+        if (!filter_var($appointment['doctor_email'], FILTER_VALIDATE_EMAIL)) {
+            $chyby['to'] = 'E-mail příjemce nemá platný formát.';
+        }
+
+        $subject = 'Zrušení rezervace';
+
+        $emailBody = nl2br('
+            Rezervace byla zrušena.
+            Číslo rezervace: ' . htmlspecialchars($appointment['appointment_id']) . '
+            Pacient: ' . htmlspecialchars($appointment['patient_given_name'] . ' ' . $appointment['patient_family_name']) . '
+            Lékař: ' . htmlspecialchars($appointment['doctor_given_name'] . ' ' . $appointment['doctor_family_name']) . '
+            Datum a čas: ' . date("d. m. Y, H:i:s", intval($appointment['timestamp'])) . '
+            E-mail na pacienta: ' . ' <a href = "mailto:' . htmlspecialchars($appointment['patient_email']) . '">' .
+            htmlspecialchars($appointment['patient_email']) . '</a>');
+        $emailHtml = '
+        <html lang="cs">
+        <head>
+            <title>' . $subject . '</title>
+        </head>
+        <body>' . $emailBody . '</body>
+        </html>';
+
+        $hlavicky = [
+            'MIME-Version: 1.0',
+            'Content-type: text/html; charset=utf-8', //pokud chceme správně kódování a neřešit ruční kódování do mailu
+            'From: ' . $appointment['patient_given_name'] . ' ' . $appointment['patient_family_name'] . '<' . $appointment['patient_email'] . '>', //pokud byste v mailu chtěli nejen adresu, ale i jméno odesílatele, může tu být tvar: From: Jméno Příjmení<email@domain.tld> (obdobně u dalších hlaviček)
+            'Reply-To: ' . $appointment['patient_given_name'] . ' ' . $appointment['patient_family_name'] . '<' . $appointment['patient_email'] . '>',
+            'X-Mailer: PHP/' . phpversion()
+        ];
+
+        $hlavicky = implode("\r\n", $hlavicky);
+
+        if (empty($chyby)) {
+            //mail($appointment['doctor_email'], $subject, $emailHtml, $hlavicky);
+            mail('matj27@vse.cz', $subject, $emailHtml, $hlavicky);
+        }
+    }
+
     $errors = [];
     if (!empty($_GET['appointment_id'])) {
-        $appointmentQuery = $db->prepare('SELECT * FROM appointments WHERE appointment_id=:appointment_id LIMIT 1;');
+        $appointmentQuery = $db->prepare('SELECT * FROM (' . $selectView . ') AS patients_appointments WHERE appointment_id=:appointment_id LIMIT 1;');
         $appointmentQuery->execute([
             ':appointment_id' => $_GET['appointment_id']
         ]);
@@ -18,7 +75,7 @@
             ) {
                 $errors['not_deleted'] = 'Chyba aplikace při odstraňování rezervace!';
             } else {
-                //todo odeslat email lékaři
+                sendMailToDoctor($appointment);
             }
         } else {
             $errors['different_patient'] = 'Nebyla zvolena přístupná rezervace!';
