@@ -31,6 +31,8 @@
             case 'doctor':
                 $orderBy = ' ORDER BY doctor_family_name ASC';
                 break;
+            default:
+                $orderBy = ' ORDER BY appointment_id ASC';
         }
     }
     $appointmentsQuery = $db->prepare('SELECT * FROM (' . $selectView . ') AS patient_appointment WHERE patient_id=:patient_id' . $orderBy . ';');
@@ -81,7 +83,8 @@
                 </tr>
                 <tr>
                     <td>
-                        E-mail na lékaře: <?php echo htmlspecialchars($appointment['doctor_email']); ?>
+                        E-mail na lékaře: <?php echo '<a href="mailto:' . htmlspecialchars($appointment['doctor_email']) . '">' .
+                            htmlspecialchars($appointment['doctor_email']) . '</a>'; ?>
                     </td>
                 </tr>
                 <tr>

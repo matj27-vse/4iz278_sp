@@ -32,6 +32,7 @@
                 }
                 $_SESSION['given_name'] = $user['given_name'];
                 $_SESSION['family_name'] = $user['family_name'];
+                $_SESSION['email'] = $user['email'];
 
                 header('Location: https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php');
                 exit();
@@ -76,7 +77,8 @@
             <label for="is-doctor">Přihlašuji se jako lékař</label>
         </div>
         <button type="submit" class="btn btn-primary">Přihlásit se</button>
-        <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/registration.php" class="btn btn-light">Registrovat se</a>
+        <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/registration.php" class="btn btn-light">Registrovat
+            se</a>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php" class="btn btn-light">Zrušit</a>
     </form>
 

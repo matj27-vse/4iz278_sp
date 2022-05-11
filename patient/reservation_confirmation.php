@@ -1,4 +1,45 @@
 <?php
+    function sendMailToDoctor($doctor, $timestamp, $appointmentId) {
+        $chyby = [];
+
+        if (!filter_var($doctor['email'], FILTER_VALIDATE_EMAIL)) {
+            $chyby['to'] = 'E-mail příjemce nemá platný formát.';
+        }
+
+        $subject = 'Nová rezervace';
+
+        $emailBody = nl2br('
+            Byla vytvořená nová rezervace.
+            Číslo rezervace: ' . htmlspecialchars($appointmentId) . '
+            Pacient: ' . htmlspecialchars($_SESSION['given_name'] . ' ' . $_SESSION['family_name']) . '
+            Lékař: ' . htmlspecialchars($doctor['given_name'] . ' ' . $doctor['family_name']) . '
+            Datum a čas: ' . date("d. m. Y, H:i:s", intval($_GET['timestamp'])) . '
+            E-mail na pacienta: ' . ' <a href = "mailto:' . htmlspecialchars($_SESSION['email']) . '">' .
+            htmlspecialchars($_SESSION['email']) . '</a>');
+        $emailHtml = '
+        <html lang="cs">
+        <head>
+            <title>' . $subject . '</title>
+        </head>
+        <body>' . $emailBody . '</body>
+        </html>';
+
+        $hlavicky = [
+            'MIME-Version: 1.0',
+            'Content-type: text/html; charset=utf-8', //pokud chceme správně kódování a neřešit ruční kódování do mailu
+            'From: ' . $_SESSION['given_name'] . ' ' . $_SESSION['family_name'] . '<' . $_SESSION['email'] . '>', //pokud byste v mailu chtěli nejen adresu, ale i jméno odesílatele, může tu být tvar: From: Jméno Příjmení<email@domain.tld> (obdobně u dalších hlaviček)
+            'Reply-To: ' . $_SESSION['given_name'] . ' ' . $_SESSION['family_name'] . '<' . $_SESSION['email'] . '>',
+            'X-Mailer: PHP/' . phpversion()
+        ];
+
+        $hlavicky = implode("\r\n", $hlavicky);
+
+        if (empty($chyby)) {
+            //mail($doctor['email'], $subject, $emailHtml, $hlavicky);
+            mail('matj27@vse.cz', $subject, $emailHtml, $hlavicky);
+        }
+    }
+
     function retreiveFreeTimeSlots($doctorId, $timestamp) {
         $date = date("Y-m-d", intval($timestamp));
         $url = 'https://eso.vse.cz/~matj27/4iz278/semestralni_prace/api/doctor/free_time_slots/?doctor_id=' .
@@ -47,7 +88,7 @@
             ])
         ) {
             $appointmentId = $db->lastInsertId();
-            //todo odeslat email lékaři
+            sendMailToDoctor($doctor, $_GET['timestamp'], $appointmentId);
         } else {
             $errors['reservation'] = 'Došlo k chybě při vytváření rezervace.';
         }
@@ -67,7 +108,9 @@
         echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php" class="mr-1 btn btn-primary">Pokračovat</a>';
     } else {
         ?>
-        <div class="alert alert-success" role="alert">Rezervace byla vytvořena. Vyčkejte na potvrzovací e-mail od lékaře.</div>
+        <div class="alert alert-success" role="alert">Rezervace byla vytvořena. Vyčkejte na potvrzovací e-mail od
+            lékaře.
+        </div>
         <ul class="list-group">
             <li class="list-group-item">
                 Číslo rezervace: <?php echo htmlspecialchars($appointmentId); ?>
@@ -82,11 +125,12 @@
                 Datum a čas: <?php echo date("d. m. Y, H:i:s", intval($_GET['timestamp'])); ?>
             </li>
             <li class="list-group-item">
-                E-mail na lékaře: <?php echo htmlspecialchars($doctor['email']); ?>
+                E-mail na lékaře: <?php echo '<a href="mailto:' . htmlspecialchars($doctor['email']) . '">' .
+                    htmlspecialchars($doctor['email']) . '</a>'; ?>
             </li>
         </ul>
         <p>
-            Upozorňujeme, že Vámi zarezervovaná návštěva musí být potvrzená ošetřujícím lékařem.<br />
+            Upozorňujeme, že Vámi zarezervovaná návštěva musí být potvrzená ošetřujícím lékařem.<br/>
             Před návštěvou ordinace vyčkejte, prosím, na potvrzovací e-mail.
         </p>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php" class="mr-1 btn btn-primary">Pokračovat</a>

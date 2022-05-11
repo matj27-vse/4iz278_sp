@@ -7,6 +7,7 @@
     unset($_SESSION['patient_id']);
     unset($_SESSION['given_name']);
     unset($_SESSION['family_name']);
+    unset($_SESSION['email']);
 
     //přesměrujeme uživatele na homepage
 
