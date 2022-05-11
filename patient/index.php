@@ -83,7 +83,8 @@
                 </tr>
                 <tr>
                     <td>
-                        E-mail na lékaře: <?php echo '<a href="mailto:' . htmlspecialchars($appointment['doctor_email']) . '">' .
+                        E-mail na
+                        lékaře: <?php echo '<a href="mailto:' . htmlspecialchars($appointment['doctor_email']) . '">' .
                             htmlspecialchars($appointment['doctor_email']) . '</a>'; ?>
                     </td>
                 </tr>
@@ -105,8 +106,5 @@
         </table>
         <?php
     }
-?>
 
-
-<?php
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/footer.php';
