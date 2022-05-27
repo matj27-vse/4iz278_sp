@@ -31,7 +31,7 @@
                     $deleteQuery = $db->prepare('DELETE FROM forgotten_passwords_doctors WHERE doctor_id=:doctor_id OR created<:limit;');
                     $deleteQuery->execute([
                         ':doctor_id' => $_SESSION['doctor_id'],
-                        ':created' => time() - (12 * 60 * 60)
+                        ':limit' => strval(time() -(12*60*60))
                     ]);
                 } else {
                     $_SESSION['patient_id'] = $user['patient_id'];
@@ -39,7 +39,7 @@
                     $deleteQuery = $db->prepare('DELETE FROM forgotten_passwords_patients WHERE patient_id=:patient_id OR created<:limit;');
                     $deleteQuery->execute([
                         ':patient_id' => $_SESSION['patient_id'],
-                        ':created' => time() - (12 * 60 * 60)
+                        ':limit' => strval(time() -(12*60*60))
                     ]);
                 }
                 $_SESSION['given_name'] = $user['given_name'];
