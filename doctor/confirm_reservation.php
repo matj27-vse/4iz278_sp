@@ -1,6 +1,19 @@
 <?php
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_doctor.php';
 
+    function prepareEmailBody($appointment) {
+        $emailBody = nl2br('
+            Rezervace byla potvrzena lékařem.
+            Číslo rezervace: ' . htmlspecialchars($appointment['appointment_id']) . '
+            Pacient: ' . htmlspecialchars($appointment['patient_given_name'] . ' ' . $appointment['patient_family_name']) . '
+            Lékař: ' . htmlspecialchars($appointment['doctor_given_name'] . ' ' . $appointment['doctor_family_name']) . '
+            Datum a čas: ' . date("d. m. Y, H:i:s", intval($appointment['timestamp'])) . '
+            E-mail na lékaře: ' . ' <a href = "mailto:' . htmlspecialchars($appointment['doctor_email']) . '">' .
+            htmlspecialchars($appointment['doctor_email']) . '</a>');
+
+        return $emailBody;
+    }
+
     $errors = [];
     $patientAlreadyVisited = false;    //todo alert ještě tu tenhle pacient nebyl
 
@@ -22,7 +35,11 @@
                     ':appointment_id' => $appointment['appointment_id']
                 ])
             ) {
-                //todo odeslat pacientovi email
+                sendMail(
+                    $appointment['doctor_email'], $appointment['doctor_given_name'], $appointment['doctor_family_name'],
+                    $appointment['doctor_email'], $appointment['doctor_given_name'], $appointment['doctor_family_name'],
+                    $appointment['patient_email'], 'Potvrzení rezervace', prepareEmailBody($appointment)
+                );
             }
         } else {
             $errors['different_doctor'] = 'Nemáte oprávnění pro správu této rezervace.';

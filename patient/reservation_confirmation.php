@@ -1,13 +1,5 @@
 <?php
-    function sendMailToDoctor($doctor, $timestamp, $appointmentId) {
-        $chyby = [];
-
-        if (!filter_var($doctor['email'], FILTER_VALIDATE_EMAIL)) {
-            $chyby['to'] = 'E-mail příjemce nemá platný formát.';
-        }
-
-        $subject = 'Nová rezervace';
-
+    function prepareEmailBody($appointmentId, $doctor) {
         $emailBody = nl2br('
             Byla vytvořená nová rezervace.
             Číslo rezervace: ' . htmlspecialchars($appointmentId) . '
@@ -16,28 +8,8 @@
             Datum a čas: ' . date("d. m. Y, H:i:s", intval($_GET['timestamp'])) . '
             E-mail na pacienta: ' . ' <a href = "mailto:' . htmlspecialchars($_SESSION['email']) . '">' .
             htmlspecialchars($_SESSION['email']) . '</a>');
-        $emailHtml = '
-        <html lang="cs">
-        <head>
-            <title>' . $subject . '</title>
-        </head>
-        <body>' . $emailBody . '</body>
-        </html>';
 
-        $hlavicky = [
-            'MIME-Version: 1.0',
-            'Content-type: text/html; charset=utf-8', //pokud chceme správně kódování a neřešit ruční kódování do mailu
-            'From: ' . $_SESSION['given_name'] . ' ' . $_SESSION['family_name'] . '<' . $_SESSION['email'] . '>', //pokud byste v mailu chtěli nejen adresu, ale i jméno odesílatele, může tu být tvar: From: Jméno Příjmení<email@domain.tld> (obdobně u dalších hlaviček)
-            'Reply-To: ' . $_SESSION['given_name'] . ' ' . $_SESSION['family_name'] . '<' . $_SESSION['email'] . '>',
-            'X-Mailer: PHP/' . phpversion()
-        ];
-
-        $hlavicky = implode("\r\n", $hlavicky);
-
-        if (empty($chyby)) {
-            //mail($doctor['email'], $subject, $emailHtml, $hlavicky);
-            mail('matj27@vse.cz', $subject, $emailHtml, $hlavicky);
-        }
+        return $emailBody;
     }
 
     function retreiveFreeTimeSlots($doctorId, $timestamp) {
@@ -88,7 +60,12 @@
             ])
         ) {
             $appointmentId = $db->lastInsertId();
-            sendMailToPatient($doctor, $_GET['timestamp'], $appointmentId);
+            $emailBody = prepareEmailBody($appointmentId, $doctor);
+            sendMail(
+                $_SESSION['email'], $_SESSION['given_name'], $_SESSION['family_name'],
+                $_SESSION['email'], $_SESSION['given_name'], $_SESSION['family_name'],
+                $doctor['email'], 'Nová rezervace', $emailBody
+            );
             //todo pročistit databázi od navštívení. Jakože když proběhla nějaká rezervace pacienta, tak zapsat, že pacient už navštivil lékaře
         } else {
             $errors['reservation'] = 'Došlo k chybě při vytváření rezervace.';
