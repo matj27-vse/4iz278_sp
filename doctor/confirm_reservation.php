@@ -1,6 +1,7 @@
 <?php
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_doctor.php';
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/email_functions.php';
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
 
     function prepareEmailBody($appointment) {
         $emailBody = nl2br('
@@ -19,7 +20,7 @@
     $patientAlreadyVisited = false;    //todo alert ještě tu tenhle pacient nebyl
 
     if (!empty($_GET['appointment_id'])) {
-        $appointmentQuery = $db->prepare('SELECT * FROM appointments WHERE appointment_id=:appointment_id LIMIT 1;');
+        $appointmentQuery = $db->prepare('SELECT * FROM (' . $selectView . ') AS patients_appointments WHERE appointment_id=:appointment_id LIMIT 1;');
         $appointmentQuery->execute([
             ':appointment_id' => $_GET['appointment_id']
         ]);
