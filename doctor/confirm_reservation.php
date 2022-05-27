@@ -1,5 +1,6 @@
 <?php
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_doctor.php';
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/email_functions.php';
 
     function prepareEmailBody($appointment) {
         $emailBody = nl2br('

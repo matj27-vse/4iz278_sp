@@ -1,4 +1,6 @@
 <?php
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/email_functions.php';
+
     function prepareEmailBody($appointmentId, $doctor) {
         $emailBody = nl2br('
             Byla vytvořená nová rezervace.
