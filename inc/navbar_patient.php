@@ -11,5 +11,11 @@
                     echo((@$currentPage == 'reservation.php') ? '<span class="sr-only">(current)</span>' : '');
                 ?></a>
         </li>
+        <li class="nav-item <?php echo((@$currentPage == 'settings.php') ? 'active' : ''); ?>">
+            <a class="nav-link"
+               href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/settings.php">Nastavení<?php
+                    echo((@$currentPage == 'settings.php') ? '<span class="sr-only">(current)</span>' : '');
+                ?></a>
+        </li>
     </ul>
 </nav>

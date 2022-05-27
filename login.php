@@ -27,8 +27,20 @@
 
                 if (@$_POST['is-doctor'] == 'is-doctor') {
                     $_SESSION['doctor_id'] = $user['doctor_id'];
+
+                    $deleteQuery = $db->prepare('DELETE FROM forgotten_passwords_doctors WHERE doctor_id=:doctor_id OR created<:limit;');
+                    $deleteQuery->execute([
+                        ':doctor_id' => $_SESSION['doctor_id'],
+                        ':created' => time() - (12 * 60 * 60)
+                    ]);
                 } else {
                     $_SESSION['patient_id'] = $user['patient_id'];
+
+                    $deleteQuery = $db->prepare('DELETE FROM forgotten_passwords_patients WHERE patient_id=:patient_id OR created<:limit;');
+                    $deleteQuery->execute([
+                        ':patient_id' => $_SESSION['patient_id'],
+                        ':created' => time() - (12 * 60 * 60)
+                    ]);
                 }
                 $_SESSION['given_name'] = $user['given_name'];
                 $_SESSION['family_name'] = $user['family_name'];
@@ -79,6 +91,8 @@
         <button type="submit" class="btn btn-primary">Přihlásit se</button>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/registration.php" class="btn btn-light">Registrovat
             se</a>
+        <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/forgotten_password.php" class="btn btn-light">Zapomenuté
+            heslo</a>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php" class="btn btn-light">Zrušit</a>
     </form>
 

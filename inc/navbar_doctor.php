@@ -1,4 +1,3 @@
-<!--todo upravit navbar aby seděl na doktora-->
 <nav class="navbar navbar-expand-lg navbar-light bg-light w-100">
     <ul class="navbar-nav">
         <li class="nav-item <?php echo((@$currentPage == 'index.php') ? 'active' : ''); ?>">

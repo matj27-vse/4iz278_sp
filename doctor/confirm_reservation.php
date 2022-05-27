@@ -17,7 +17,6 @@
     }
 
     $errors = [];
-    $patientAlreadyVisited = false;    //todo alert ještě tu tenhle pacient nebyl
 
     if (!empty($_GET['appointment_id'])) {
         $appointmentQuery = $db->prepare('SELECT * FROM (' . $selectView . ') AS patients_appointments WHERE appointment_id=:appointment_id LIMIT 1;');
@@ -31,6 +30,20 @@
 
     if (empty($errors)) {
         if ($appointment['doctor_id'] == $_SESSION['doctor_id']) {
+            /*
+             *  CREATE TRIGGER patient_visited_doctor BEFORE UPDATE
+             *  ON
+             *      appointments FOR EACH ROW
+             *  INSERT IGNORE
+             *  INTO visited(patient_id, doctor_id)
+             *  SELECT
+             *      patient_id,
+             *      doctor_id
+             *  FROM
+             *      appointments
+             *  WHERE
+             *      TIMESTAMP < UNIX_TIMESTAMP() AND confirmed = 1;
+             */
             $appointmentQuery = $db->prepare('UPDATE appointments SET confirmed = 1 WHERE appointment_id = :appointment_id;');
             if (
                 $appointmentQuery->execute([
@@ -46,6 +59,16 @@
         } else {
             $errors['different_doctor'] = 'Nemáte oprávnění pro správu této rezervace.';
         }
+    }
+
+    $patientAlreadyVisited = false;
+    $appointmentQuery = $db->prepare('SELECT * FROM visited WHERE patient_id=:patient_id AND doctor_id=:doctor_id LIMIT 1;');
+    $appointmentQuery->execute([
+        ':patient_id' => $appointment['patient_id'],
+        ':doctor_id' => $appointment['doctor_id']
+    ]);
+    if (!empty($appointmentQuery->fetch(PDO::FETCH_ASSOC))) {
+        $patientAlreadyVisited = true;
     }
 
     $currentPage = basename(__FILE__);
