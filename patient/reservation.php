@@ -4,8 +4,7 @@
     $pageTitle = 'Rezervace termínu';
     $currentPage = basename(__FILE__);
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';
-?>
-<?php
+
     if (!empty(@$_REQUEST['error'])) {
         echo '<div class="alert alert-danger" role="alert">';
         echo htmlspecialchars($_REQUEST['error']);
