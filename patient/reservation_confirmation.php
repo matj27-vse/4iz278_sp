@@ -88,7 +88,7 @@
             ])
         ) {
             $appointmentId = $db->lastInsertId();
-            sendMailToDoctor($doctor, $_GET['timestamp'], $appointmentId);
+            sendMailToPatient($doctor, $_GET['timestamp'], $appointmentId);
             //todo pročistit databázi od navštívení. Jakože když proběhla nějaká rezervace pacienta, tak zapsat, že pacient už navštivil lékaře
         } else {
             $errors['reservation'] = 'Došlo k chybě při vytváření rezervace.';

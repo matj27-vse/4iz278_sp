@@ -1,5 +1,5 @@
 <?php
-    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_patient.php';
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_doctor.php';
 
     $selectView = 'SELECT 
                         appointments.appointment_id, 
@@ -17,10 +17,10 @@
                     JOIN doctors ON appointments.doctor_id = doctors.doctor_id
                     JOIN patients ON appointments.patient_id = patients.patient_id';
 
-    function sendMailToDoctor($appointment) {
+    function sendMailToPatient($appointment) {
         $chyby = [];
 
-        if (!filter_var($appointment['doctor_email'], FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($appointment['patient_email'], FILTER_VALIDATE_EMAIL)) {
             $chyby['to'] = 'E-mail příjemce nemá platný formát.';
         }
 
@@ -32,8 +32,8 @@
             Pacient: ' . htmlspecialchars($appointment['patient_given_name'] . ' ' . $appointment['patient_family_name']) . '
             Lékař: ' . htmlspecialchars($appointment['doctor_given_name'] . ' ' . $appointment['doctor_family_name']) . '
             Datum a čas: ' . date("d. m. Y, H:i:s", intval($appointment['timestamp'])) . '
-            E-mail na pacienta: ' . ' <a href = "mailto:' . htmlspecialchars($appointment['patient_email']) . '">' .
-            htmlspecialchars($appointment['patient_email']) . '</a>');
+            E-mail na lékaře: ' . ' <a href = "mailto:' . htmlspecialchars($appointment['doctor_email']) . '">' .
+            htmlspecialchars($appointment['doctor_email']) . '</a>');
         $emailHtml = '
         <html lang="cs">
         <head>
@@ -45,15 +45,15 @@
         $hlavicky = [
             'MIME-Version: 1.0',
             'Content-type: text/html; charset=utf-8', //pokud chceme správně kódování a neřešit ruční kódování do mailu
-            'From: ' . $appointment['patient_given_name'] . ' ' . $appointment['patient_family_name'] . '<' . $appointment['patient_email'] . '>', //pokud byste v mailu chtěli nejen adresu, ale i jméno odesílatele, může tu být tvar: From: Jméno Příjmení<email@domain.tld> (obdobně u dalších hlaviček)
-            'Reply-To: ' . $appointment['patient_given_name'] . ' ' . $appointment['patient_family_name'] . '<' . $appointment['patient_email'] . '>',
+            'From: ' . $appointment['doctor_given_name'] . ' ' . $appointment['doctor_family_name'] . '<' . $appointment['doctor_email'] . '>', //pokud byste v mailu chtěli nejen adresu, ale i jméno odesílatele, může tu být tvar: From: Jméno Příjmení<email@domain.tld> (obdobně u dalších hlaviček)
+            'Reply-To: ' . $appointment['doctor_given_name'] . ' ' . $appointment['doctor_family_name'] . '<' . $appointment['doctor_email'] . '>',
             'X-Mailer: PHP/' . phpversion()
         ];
 
         $hlavicky = implode("\r\n", $hlavicky);
 
         if (empty($chyby)) {
-            //mail($appointment['doctor_email'], $subject, $emailHtml, $hlavicky);
+            //mail($appointment['patient_email'], $subject, $emailHtml, $hlavicky);
             mail('matj27@vse.cz', $subject, $emailHtml, $hlavicky);
         }
     }
@@ -66,7 +66,7 @@
         ]);
         $appointment = $appointmentQuery->fetch(PDO::FETCH_ASSOC);
 
-        if ($appointment['patient_id'] == $_SESSION['patient_id']) {
+        if ($appointment['doctor_id'] == $_SESSION['doctor_id']) {
             $deleteQuery = $db->prepare('DELETE FROM appointments WHERE appointment_id=:appointment_id;');
             if (
                 !$deleteQuery->execute([
@@ -78,7 +78,7 @@
                 sendMailToPatient($appointment);
             }
         } else {
-            $errors['different_patient'] = 'Nebyla zvolena přístupná rezervace!';
+            $errors['different_doctor'] = 'Nebyla zvolena přístupná rezervace!';
         }
     } else {
         $errors['not_selected'] = 'Nebyla zvolena rezervace pro zrušení!';
@@ -93,12 +93,12 @@
             echo htmlspecialchars($error);
             echo '</div>';
         }
-        echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php" class="mr-1 btn btn-primary">Pokračovat</a>';
+        echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/doctor/index.php" class="mr-1 btn btn-primary">Pokračovat</a>';
     } else {
         echo '<div class="alert alert-success" role="alert">';
         echo 'Rezervace byla úspěšně zrušena.';
         echo '</div>';
-        echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php" class="mr-1 btn btn-primary">Pokračovat</a>';
+        echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/doctor/index.php" class="mr-1 btn btn-primary">Pokračovat</a>';
     }
 
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/footer.php';

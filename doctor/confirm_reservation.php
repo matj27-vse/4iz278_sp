@@ -9,7 +9,7 @@
         $appointmentQuery->execute([
             ':appointment_id' => $_GET['appointment_id']
         ]);
-        $appointment = $appointmentQuery->fetchAll(PDO::FETCH_ASSOC);
+        $appointment = $appointmentQuery->fetch(PDO::FETCH_ASSOC);
     } else {
         $errors['appointment_not_chosen'] = 'Nebyla zvolena rezervace pro potvrzení.';
     }
