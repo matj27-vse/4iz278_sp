@@ -64,7 +64,7 @@
             $request = $requestQuery->fetch(PDO::FETCH_ASSOC);
 
             //sestavíme odkaz pro mail
-            $link = 'https://eso.vse.cz/~matj27/4iz278/semestralni_prace/forgotten_password.php';
+            $link = 'https://eso.vse.cz/~matj27/4iz278/semestralni_prace/renew_password.php';
             if ($doctor) {
                 $link .= '?doctor_id=' . $request['doctor_id'];
             } else {
