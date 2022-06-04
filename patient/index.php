@@ -68,6 +68,13 @@
                 </tr>
                 <tr>
                     <td>
+                        Délka návštěvy: <?php
+                            echo $appointment['length'];
+                        ?> minut
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         E-mail na
                         lékaře: <?php echo '<a href="mailto:' . htmlspecialchars($appointment['doctor_email']) . '">' .
                             htmlspecialchars($appointment['doctor_email']) . '</a>'; ?>

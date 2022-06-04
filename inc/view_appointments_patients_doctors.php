@@ -2,6 +2,7 @@
     $selectView = 'SELECT 
                         appointments.appointment_id, 
                         appointments.timestamp, 
+                        appointments.length, 
                         appointments.confirmed, 
                         doctors.doctor_id, 
                         doctors.given_name AS doctor_given_name,
@@ -13,4 +14,5 @@
                         patients.email AS patient_email
                     FROM appointments
                     JOIN doctors ON appointments.doctor_id = doctors.doctor_id
-                    JOIN patients ON appointments.patient_id = patients.patient_id';
+                    JOIN patients ON appointments.patient_id = patients.patient_id
+                    WHERE appointments.timestamp > UNIX_TIMESTAMP()';

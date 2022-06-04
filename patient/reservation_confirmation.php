@@ -29,7 +29,7 @@
     $errors = [];
     #region existujici lekar
     if (!empty(@$_GET['doctor_id'])) {
-        $doctorQuery = $db->prepare('SELECT doctor_id,given_name,family_name,email FROM doctors WHERE doctor_id=:id AND active=1 LIMIT 1;');
+        $doctorQuery = $db->prepare('SELECT doctor_id,given_name,family_name,email,timeslot_size FROM doctors WHERE doctor_id=:id AND active=1 LIMIT 1;');
         $doctorQuery->execute([
             ':id' => $_GET['doctor_id']
         ]);
@@ -53,11 +53,12 @@
 
     #region vytvoreni rezervace
     if (empty($errors)) {
-        $insertQuery = $db->prepare('INSERT INTO appointments (timestamp, patient_id, doctor_id, confirmed) 
-                                            VALUES (:timestamp, :patient_id, :doctor_id, 0);');
+        $insertQuery = $db->prepare('INSERT INTO appointments (timestamp, length, patient_id, doctor_id, confirmed) 
+                                            VALUES (:timestamp, :lenght, :patient_id, :doctor_id, 0);');
         if (
             $insertQuery->execute([
                 ':timestamp' => $_GET['timestamp'],
+                ':lenght'=> $doctor['timeslot_size'],
                 ':patient_id' => $_SESSION['patient_id'],
                 ':doctor_id' => $doctor['doctor_id']
             ])

@@ -28,7 +28,7 @@
         ]);
 
         if ($boundaries = $query->fetch(PDO::FETCH_ASSOC)) {
-            $query = $db->prepare('SELECT timestamp FROM appointments WHERE doctor_id=:doctor_id AND timestamp>=:today AND timestamp<:tomorrow;');
+            $query = $db->prepare('SELECT timestamp,length FROM appointments WHERE doctor_id=:doctor_id AND timestamp>=:today AND timestamp<:tomorrow;');
             $query->execute([
                 ':doctor_id' => $doctorId,
                 ':today' => strtotime($date),
@@ -36,12 +36,23 @@
             ]);
 
             $occupiedTimeSlots = $query->fetchAll(PDO::FETCH_ASSOC);
+            $occupiedMinutes = [];
+            foreach ($occupiedTimeSlots as $occupiedTimeSlotKey => $occupiedTimeSlot) {
+                $currentMinute = $occupiedTimeSlot['timestamp'];
+                while ($currentMinute < ($occupiedTimeSlot['timestamp'] + ($occupiedTimeSlot['length'] * 60))) {
+                    array_push($occupiedMinutes, $currentMinute);
+                    $currentMinute += 60;
+                }
+            }
+
+            /*
             for ($i = 0; $i < count($occupiedTimeSlots); ++$i) {
                 //$occupiedTimeSlots[$i] = strtotime($date . 't' . $occupiedTimeSlots[$i]['time']);
                 $occupiedTimeSlots[$i] = $occupiedTimeSlots[$i]['timestamp'];
             }
+            */
 
-            $schedule = calculateFreeTimeSlots($boundaries, $date, $occupiedTimeSlots);
+            $schedule = calculateFreeTimeSlots($boundaries, $date, $occupiedMinutes);
             $response = [];
             foreach ($schedule as $time) {
                 array_push($response, $time);
@@ -64,7 +75,7 @@
         }
     }
 
-    function calculateFreeTimeSlots($boundaries, $date, $occupiedTimeSlots) {
+    function calculateFreeTimeSlots($boundaries, $date, $occupiedTimestamps) {
         if (isWeekend($date)) {
             return [];
         }
@@ -83,7 +94,57 @@
             $currentTime += 60 * $boundaries['timeslot_size'];
         }
 
-        $freeTimeSlots = array_diff($entireSchedule, $occupiedTimeSlots);
+        $freeTimeSlots = array_diff($entireSchedule, $occupiedTimestamps);
+
+        asort($freeTimeSlots);
+        asort($occupiedTimestamps);
+
+        $possibleFreeTimeslots = [];
+
+        foreach ($freeTimeSlots as $possiblyFreeTimeslot) {
+            #region vyssi timestampy
+            $greaterOccupiedTimestamps = array_filter(
+                $occupiedTimestamps,
+                function ($occupiedTimestamp) use ($possiblyFreeTimeslot) {
+                    return ($occupiedTimestamp > $possiblyFreeTimeslot);
+                }
+            );
+
+            foreach ($greaterOccupiedTimestamps as $greaterOccupiedTimestampKey => $greaterOccupiedTimestamp) {
+                if ($greaterOccupiedTimestamp >= $possiblyFreeTimeslot &&
+                    $greaterOccupiedTimestamp < ($possiblyFreeTimeslot + (60 * $boundaries['timeslot_size']))) {
+                    unset($greaterOccupiedTimestamps[$greaterOccupiedTimestampKey]);
+                }
+            }
+
+            foreach ($greaterOccupiedTimestamps as $greaterOccupiedTimestamp){
+                array_push($possibleFreeTimeslots,$greaterOccupiedTimestamp);
+            }
+            #endregion vyssi timestampy
+
+            #region nizsi timestampy
+            $lowerOccupiedTimestamps = array_filter(
+                $occupiedTimestamps,
+                function ($occupiedTimestamp) use ($possiblyFreeTimeslot) {
+                    return ($occupiedTimestamp < $possiblyFreeTimeslot);
+                }
+            );
+
+            foreach ($lowerOccupiedTimestamps as $lowerOccupiedTimestampKey => $lowerOccupiedTimestamp) {
+                if ($lowerOccupiedTimestamp >= ($possiblyFreeTimeslot - (60 * $boundaries['timeslot_size'])) &&
+                    $lowerOccupiedTimestamp < $possiblyFreeTimeslot) {
+                    unset($lowerOccupiedTimestamps[$lowerOccupiedTimestampKey]);
+                }
+            }
+
+            foreach ($lowerOccupiedTimestamps as $lowerOccupiedTimestamp){
+                array_push($possibleFreeTimeslots,$lowerOccupiedTimestamp);
+            }
+
+            #endregion nizsi timestampy
+        }
+
+        $freeTimeSlots = array_diff($freeTimeSlots, $possibleFreeTimeslots);
 
         return $freeTimeSlots;
     }
