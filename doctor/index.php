@@ -5,60 +5,111 @@
     $pageTitle = 'Sekce pro lékaře';
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';
 
-    $selectView = 'SELECT 
-                        appointments.appointment_id, 
-                        appointments.timestamp, 
-                        appointments.confirmed, 
-                        doctors.doctor_id, 
-                        doctors.given_name AS doctor_given_name,
-                        doctors.family_name AS doctor_family_name,
-                        doctors.email AS doctor_email,
-                        patients.patient_id,
-                        patients.given_name AS patient_given_name,
-                        patients.family_name AS patient_family_name,
-                        patients.email AS patient_email
-                    FROM appointments
-                    JOIN doctors ON appointments.doctor_id = doctors.doctor_id
-                    JOIN patients ON appointments.patient_id = patients.patient_id
-                    WHERE appointments.timestamp >= UNIX_TIMESTAMP()';
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
 
-    $orderBy = '';
+    $orderBy = ' ORDER BY appointment_id ASC ';
     if (!empty($_GET['order-by'])) {
         switch ($_GET['order-by']) {
             case 'timestamp':
-                $orderBy = ' ORDER BY timestamp ASC';
+                $orderBy = ' ORDER BY timestamp ASC ';
                 break;
             case 'patient':
-                $orderBy = ' ORDER BY patient_family_name ASC';
+                $orderBy = ' ORDER BY patient_family_name ASC ';
                 break;
-            default:
-                $orderBy = ' ORDER BY appointment_id ASC';
+            case 'appointment-id':
+                $orderBy = ' ORDER BY appointment_id ASC ';
+                break;
         }
     }
-    $appointmentsQuery = $db->prepare('SELECT * FROM (' . $selectView . ') AS patient_appointment WHERE doctor_id=:doctor_id' . $orderBy . ';');
+
+    $confirmed = '';
+    if (!empty($_GET['confirmed'])) {
+        switch ($_GET['confirmed']) {
+            case 'false':
+                $confirmed = ' AND confirmed=0 ';
+                break;
+            case 'true':
+                $confirmed = ' AND confirmed=1 ';
+                break;
+        }
+    }
+    $appointmentsQuery = $db->prepare(
+        'SELECT * FROM (' . $selectView . ') AS patient_appointment WHERE doctor_id=:doctor_id' . $confirmed . $orderBy . ';');
     $appointmentsQuery->execute([
         ':doctor_id' => $_SESSION['doctor_id']
     ]);
     $appointments = $appointmentsQuery->fetchAll(PDO::FETCH_ASSOC);
 ?>
-    <div class="col-sm-12 col-md-12">
-        <form method="get">
-            <div class="form-group">
-                <label for="order-by">Seřadit podle: </label>
-                <select id="order-by" name="order-by">
-                    <option <?php echo(empty($_GET['order-by']) ? 'selected' : ''); ?>>Čísla návštěvy</option>
-                    <option value="timestamp" <?php echo(@$_GET['order-by'] == 'timestamp' ? 'selected' : ''); ?>>Data a
-                        času
-                    </option>
-                    <option value="patient" <?php echo(@$_GET['order-by'] == 'patient' ? 'selected' : ''); ?>>Příjmení
-                        pacienta
-                    </option>
-                </select>
-                <button type="submit" class="btn btn-light">Seřadit</button>
-            </div>
-        </form>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <?php
+                parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY), $newGetQuery);
+
+                if (@$_REQUEST['confirmed'] == 'true') {
+                    $newGetQuery['confirmed'] = 'false';
+                    echo '<a class="mr-1 btn btn-primary"
+                        href="index.php?' . http_build_query($newGetQuery) . '">Zobrazit pouze nepotvrzené návštěvy</a>';
+
+                    unset($newGetQuery['confirmed']);
+                    echo '<a class="mr-1 btn btn-primary"
+                        href="index.php?' . http_build_query($newGetQuery) . '">Zobrazit všechny návštěvy</a>';
+                }
+
+                if (@$_REQUEST['confirmed'] == 'false') {
+                    $newGetQuery['confirmed'] = 'true';
+                    echo '<a class="mr-1 btn btn-primary"
+                        href="index.php?' . http_build_query($newGetQuery) . '">Zobrazit pouze potvrzené návštěvy</a>';
+
+                    unset($newGetQuery['confirmed']);
+                    echo '<a class="mr-1 btn btn-primary"
+                        href="index.php?' . http_build_query($newGetQuery) . '">Zobrazit všechny návštěvy</a>';
+                }
+
+                if (!isset($_REQUEST['confirmed'])) {
+                    $newGetQuery['confirmed'] = 'true';
+                    echo '<a class="mr-1 btn btn-primary"
+                        href="index.php?' . http_build_query($newGetQuery) . '">Zobrazit pouze potvrzené návštěvy</a>';
+
+                    $newGetQuery['confirmed'] = 'false';
+                    echo '<a class="mr-1 btn btn-primary"
+                        href="index.php?' . http_build_query($newGetQuery) . '">Zobrazit pouze nepotvrzené návštěvy</a>';
+                }
+            ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <form method="get">
+                <div class="form-group">
+                    <label for="order-by">Seřadit podle: </label>
+                    <select id="order-by" name="order-by">
+                        <option value="appointment-id" <?php echo(empty($_GET['order-by']) ? 'selected' : ''); ?>>
+                            Čísla návštěvy
+                        </option>
+                        <option value="timestamp" <?php echo(@$_GET['order-by'] == 'timestamp' ? 'selected' : ''); ?>>
+                            Data a času
+                        </option>
+                        <option value="patient" <?php echo(@$_GET['order-by'] == 'patient' ? 'selected' : ''); ?>>
+                            Příjmení pacienta
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-light">Seřadit</button>
+                </div>
+            </form>
+        </div>
     </div>
 <?php
+
+    if (@$_REQUEST['confirmed'] == 'true') {
+        echo '<h2>Seznam potvrzených návštěv</h2>';
+    }
+    if (@$_REQUEST['confirmed'] == 'false') {
+        echo '<h2>Seznam nepotvrzených návštěv</h2>';
+    }
+    if (!isset($_REQUEST['confirmed'])) {
+        echo '<h2>Seznam všech návštěv</h2>';
+    }
+
     foreach ($appointments as $appointment) { ?>
         <table class="table">
             <thead>
@@ -98,11 +149,11 @@
                 <?php
                     if ($appointment['confirmed'] == 0) {
                         ?>
-                            <td>
-                                <a href="confirm_reservation.php?appointment_id=<?php echo $appointment['appointment_id']; ?>"
-                                   class="mr-1 btn btn-primary">Potvrdit
-                                    rezervaci <?php echo htmlspecialchars($appointment['appointment_id']); ?></a>
-                            </td>
+                        <td>
+                            <a href="confirm_reservation.php?appointment_id=<?php echo $appointment['appointment_id']; ?>"
+                               class="mr-1 btn btn-primary">Potvrdit
+                                rezervaci <?php echo htmlspecialchars($appointment['appointment_id']); ?></a>
+                        </td>
                         <?php
                     }
                 ?>
