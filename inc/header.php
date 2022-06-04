@@ -20,7 +20,7 @@ if (!empty($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <?php
-        if (@$currentPage == 'reservation.php') {
+        if (@$loadMcDatepicker) {
             echo('<link href="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.css" rel="stylesheet" />');
         }
     ?>

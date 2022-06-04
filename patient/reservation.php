@@ -1,6 +1,7 @@
 <?php
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_patient.php';
 
+    $loadMcDatepicker = true;
     $pageTitle = 'Rezervace termínu';
     $currentPage = basename(__FILE__);
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';

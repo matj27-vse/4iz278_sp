@@ -12,64 +12,46 @@ const picker = MCDatepicker.create({
     //https://mcdatepicker.netlify.app/docs/theme
 });
 
-const getJSON = async url => {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(response.statusText);
-    }
+const appointmentsByDate = (date) => {
+    let newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    console.log(newDate);
 
-    return response.json();
+    let url = new URL(window.location.href);
+    url.searchParams.set(`timestamp`, `${newDate.getTime() / 1000}`);
+
+    location.href = `${url.href}`;
 }
 
-const prepareTable = (doctor_id, freeTimeSlots) => {
-    let tableDiv = document.getElementById('timeslots-table');
-    tableDiv.innerHTML = '';
-
-    let table = document.createElement('table');
-    table.classList.add("table");
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th scope="col">Čas vyšetření</th>
-            </tr>
-        </thead>
-    `;
-
-    for (let i = 0; i < freeTimeSlots.length; i++) {
-        const dateTime = new Date(freeTimeSlots[i] * 1000);
-        const humanReadableDate = String(dateTime.getDate()).padStart(2, '0') + '. ' +
-            String(dateTime.getMonth()).padStart(2, '0') + '. ' +
-            String(dateTime.getFullYear()) + ', ' +
-            String(dateTime.getHours()).padStart(2, '0') + ':' +
-            String(dateTime.getMinutes()).padStart(2, '0') + ':' +
-            String(dateTime.getSeconds()).padStart(2, '0');
-
-        var tr = document.createElement('tr');
-        tr.innerHTML = `
-            <th scope="col">
-                <a href="reservation_confirmation.php?doctor_id=${doctor_id}&timestamp=${freeTimeSlots[i]}">${humanReadableDate}</a>
-            </th>
-        `;
-        table.appendChild(tr);
+function removeParam(key, sourceURL) {
+    var rtn = sourceURL.split("?")[0],
+        param,
+        params_arr = [],
+        queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+    if (queryString !== "") {
+        params_arr = queryString.split("&");
+        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+            param = params_arr[i].split("=")[0];
+            if (param === key) {
+                params_arr.splice(i, 1);
+            }
+        }
+        if (params_arr.length) rtn = rtn + "?" + params_arr.join("&");
     }
-
-    tableDiv.appendChild(table);
+    return rtn;
 }
 
-const loadFreeTimeSlots = (date) => {
-    const doctorId = new URLSearchParams(window.location.search).get("doctor_id");
+const clearDateConstraint = () => {
+    let url = new URL(window.location.href);
+    url = removeParam(`timestamp`, url.href);
 
-    const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    const url = `https://eso.vse.cz/~matj27/4iz278/semestralni_prace/api/doctor/free_time_slots/?doctor_id=${doctorId}&date=${formattedDate}`;
-    getJSON(url).then(data => {
-        prepareTable(doctorId, data)
-    }).catch(error => {
-        alert(error);
-    });
+    location.href = `${url}`;
 }
 
 let datePickerOkBtn = document.getElementById('mc-btn__ok');
-datePickerOkBtn.addEventListener("click", () => loadFreeTimeSlots(picker.getFullDate()));
+datePickerOkBtn.addEventListener("click", () => appointmentsByDate(picker.getFullDate()));
+
+let datePickerClearBtn = document.getElementById('mc-btn__clear');
+datePickerClearBtn.addEventListener("click", () => clearDateConstraint());
 
 //opens MCDatepicker
 btn.onclick = () => picker.open();

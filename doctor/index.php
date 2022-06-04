@@ -4,6 +4,7 @@
 
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_doctor.php';
 
+    $loadMcDatepicker = true;
     $currentPage = basename(__FILE__);
     $pageTitle = 'Sekce pro lékaře';
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';
@@ -97,6 +98,8 @@
                     </select>
                     <button type="submit" class="btn btn-light">Seřadit</button>
                 </div>
+                <?php echo(isset($_GET['confirmed']) ? '<input type="hidden" name="confirmed" value="' . $_GET['confirmed'] . '">' : ''); ?>
+                <?php echo(isset($_GET['timestamp']) ? '<input type="hidden" name="timestamp" value="' . $_GET['timestamp'] . '">' : ''); ?>
             </form>
         </div>
     </div>
@@ -105,24 +108,39 @@
             <div class="form-group">
                 <label for="datepicker">Zobrazit návštěvy jen v daném dni:</label>
                 <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data">
+
+                <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
+                <script src="inc/datepicker_driver.js"></script>
             </div>
         </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <?php
 
-        <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
-        <script src="inc/datepicker_driver.js"></script>
+                if (@$_REQUEST['confirmed'] == 'true') {
+                    echo '<h2>Seznam potvrzených návštěv</h2>';
+                }
+                if (@$_REQUEST['confirmed'] == 'false') {
+                    echo '<h2>Seznam nepotvrzených návštěv</h2>';
+                }
+                if (!isset($_REQUEST['confirmed'])) {
+                    echo '<h2>Seznam všech návštěv</h2>';
+                }
+            ?>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <?php
+                echo '<a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/doctor/pdf_schedule.php?' .
+                    parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) . '"
+                        class="mr-1 btn btn-primary">Vygenerovat PDF s objednávkami</a>'
+            ?>
+        </div>
     </div>
 <?php
-
-    if (@$_REQUEST['confirmed'] == 'true') {
-        echo '<h2>Seznam potvrzených návštěv</h2>';
-    }
-    if (@$_REQUEST['confirmed'] == 'false') {
-        echo '<h2>Seznam nepotvrzených návštěv</h2>';
-    }
-    if (!isset($_REQUEST['confirmed'])) {
-        echo '<h2>Seznam všech návštěv</h2>';
-    }
-
     foreach ($appointments as $appointment) { ?>
         <table class="table">
             <thead>
