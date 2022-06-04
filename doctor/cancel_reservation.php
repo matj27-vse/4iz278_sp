@@ -4,8 +4,7 @@
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
 
     function prepareEmailBody($appointment) {
-        $emailBody = nl2br('
-            Rezervace byla zrušena lékařem.
+        $emailBody = nl2br('Rezervace byla zrušena lékařem.
             Číslo rezervace: ' . htmlspecialchars($appointment['appointment_id']) . '
             Pacient: ' . htmlspecialchars($appointment['patient_given_name'] . ' ' . $appointment['patient_family_name']) . '
             Lékař: ' . htmlspecialchars($appointment['doctor_given_name'] . ' ' . $appointment['doctor_family_name']) . '

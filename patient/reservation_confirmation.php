@@ -3,8 +3,7 @@
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
 
     function prepareEmailBody($appointmentId, $doctor) {
-        $emailBody = nl2br('
-            Byla vytvořená nová rezervace.
+        $emailBody = nl2br('Byla vytvořená nová rezervace.
             Číslo rezervace: ' . htmlspecialchars($appointmentId) . '
             Pacient: ' . htmlspecialchars($_SESSION['given_name'] . ' ' . $_SESSION['family_name']) . '
             Lékař: ' . htmlspecialchars($doctor['given_name'] . ' ' . $doctor['family_name']) . '

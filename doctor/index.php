@@ -1,11 +1,12 @@
 <?php
+
+    //todo nějaký to pdf termínů
+
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/require_doctor.php';
 
     $currentPage = basename(__FILE__);
     $pageTitle = 'Sekce pro lékaře';
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';
-
-    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
 
     $orderBy = ' ORDER BY appointment_id ASC ';
     if (!empty($_GET['order-by'])) {
@@ -33,6 +34,7 @@
                 break;
         }
     }
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
     $appointmentsQuery = $db->prepare(
         'SELECT * FROM (' . $selectView . ') AS patient_appointment WHERE doctor_id=:doctor_id' . $confirmed . $orderBy . ';');
     $appointmentsQuery->execute([
@@ -97,6 +99,17 @@
                 </div>
             </form>
         </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <div class="form-group">
+                <label for="datepicker">Zobrazit návštěvy jen v daném dni:</label>
+                <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data">
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
+        <script src="inc/datepicker_driver.js"></script>
     </div>
 <?php
 
