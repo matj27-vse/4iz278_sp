@@ -32,9 +32,16 @@
                 break;
         }
     }
+
+    $timestamp = '';
+    if (!empty($_GET['timestamp'])) {
+        $timestamp = ' AND timestamp>' . $_GET['timestamp'] . ' AND timestamp<' . ($_GET['timestamp'] + (24 * 60 * 60)) . ' ';
+    }
+
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
     $appointmentsQuery = $db->prepare(
-        'SELECT * FROM (' . $selectView . ') AS patient_appointment WHERE doctor_id=:doctor_id' . $confirmed . $orderBy . ';');
+        'SELECT * FROM (' . $selectView . ') AS patient_appointment WHERE doctor_id=:doctor_id' . $confirmed .
+        $timestamp . $orderBy . ';');
     $appointmentsQuery->execute([
         ':doctor_id' => $_SESSION['doctor_id']
     ]);
@@ -107,7 +114,7 @@
                 <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data">
 
                 <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
-                <script src="inc/datepicker_driver.js"></script>
+                <script src="inc/datepicker_driver_list.js"></script>
             </div>
         </div>
     </div>

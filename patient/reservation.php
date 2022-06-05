@@ -64,7 +64,7 @@
                 <div class="form-group" id="timeslots-table"></div>
 
                 <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
-                <script src="inc/datepicker_driver.js"></script>
+                <script src="inc/datepicker_driver_reservation.js"></script>
                 <?php
             } else {
                 header('Location: https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/reservation.php?error=Zvolený doktor neexistuje.');
