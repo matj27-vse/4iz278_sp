@@ -150,6 +150,14 @@
                 echo(!empty($errors['password2']) ? '<div class="invalid-feedback">' . $errors['password2'] . '</div>' : '');
             ?>
         </div>
+        <!--
+        <div class="form-group">
+            <input type="checkbox" name="is-doctor" id="is-doctor" value="is-doctor"
+                <?php //echo(isset($_POST['is-doctor']) ? 'checked' : ''); ?>
+            />
+            <label for="is-doctor">Registruji se jako lékař</label>
+        </div>
+        -->
         <button type="submit" class="btn btn-primary">Registrovat se</button>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/login.php" class="btn btn-light">Zpět na
             přihlášení</a>
