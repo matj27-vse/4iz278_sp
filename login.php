@@ -1,6 +1,7 @@
 <?php
     //načteme připojení k databázi a inicializujeme session
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/user.php';
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/facebook.php';
 
     if (!empty($_SESSION['doctor_id']) || !empty($_SESSION['patient_id'])) {
         // uživatel už je přihlášený, nemá smysl, aby se přihlašoval znovu
@@ -31,7 +32,7 @@
                     $deleteQuery = $db->prepare('DELETE FROM forgotten_passwords_doctors WHERE doctor_id=:doctor_id OR created<:limit;');
                     $deleteQuery->execute([
                         ':doctor_id' => $_SESSION['doctor_id'],
-                        ':limit' => strval(time() -(12*60*60))
+                        ':limit' => strval(time() - (12 * 60 * 60))
                     ]);
                 } else {
                     $_SESSION['patient_id'] = $user['patient_id'];
@@ -39,7 +40,7 @@
                     $deleteQuery = $db->prepare('DELETE FROM forgotten_passwords_patients WHERE patient_id=:patient_id OR created<:limit;');
                     $deleteQuery->execute([
                         ':patient_id' => $_SESSION['patient_id'],
-                        ':limit' => strval(time() -(12*60*60))
+                        ':limit' => strval(time() - (12 * 60 * 60))
                     ]);
                 }
                 $_SESSION['given_name'] = $user['given_name'];
@@ -94,6 +95,27 @@
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/forgotten_password.php" class="btn btn-light">Zapomenuté
             heslo</a>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php" class="btn btn-light">Zrušit</a>
+    </form>
+
+    <form>
+        <div class="form-group">
+            <?php
+                #region přihlašování pomocí Facebooku
+                //inicializujeme helper pro vytvoření odkazu
+                $fbHelper = $fb->getRedirectLoginHelper();
+
+                //nastavení parametrů pro vyžádání oprávnění a odkaz na přesměrování po přihlášení
+                $permissions = ['email'];
+                $callbackUrl = htmlspecialchars('https://eso.vse.cz/~matj27/4iz278/semestralni_prace/fb_callback.php');
+
+                //necháme helper sestavit adresu pro odeslání požadavku na přihlášení
+                $fbLoginUrl = $fbHelper->getLoginUrl($callbackUrl, $permissions);
+
+                //vykreslíme odkaz na přihlášení
+                echo ' <a href="' . $fbLoginUrl . '" class="btn btn-primary my-1">Přihlásit se pomocí Facebooku</a>';
+                #endregion přihlašování pomocí Facebooku
+            ?>
+        </div>
     </form>
 
 <?php

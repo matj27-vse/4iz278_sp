@@ -4,14 +4,16 @@
     $errors = [];
 
     if (isset($_REQUEST['password-change'])) {
-        $passwordCheckQuery = $db->prepare('SELECT password FROM patients WHERE patient_id=:patient_id LIMIT 1');
-        $passwordCheckQuery->execute([
-            ':patient_id' => $_SESSION['patient_id']
-        ]);
-        $oldPasswordHash = $passwordCheckQuery->fetch(PDO::FETCH_ASSOC);
+        if (!isset($_REQUEST['new-password'])) {
+            $passwordCheckQuery = $db->prepare('SELECT password FROM patients WHERE patient_id=:patient_id LIMIT 1');
+            $passwordCheckQuery->execute([
+                ':patient_id' => $_SESSION['patient_id']
+            ]);
+            $oldPasswordHash = $passwordCheckQuery->fetch(PDO::FETCH_ASSOC);
 
-        if (!password_verify($_POST['old-password'], $oldPasswordHash['password'])) {
-            $errors['old-password'] = 'Stávající heslo není správné.';
+            if (!password_verify($_POST['old-password'], $oldPasswordHash['password'])) {
+                $errors['old-password'] = 'Stávající heslo není správné.';
+            }
         }
 
         if (empty($_POST['password']) || (strlen($_POST['password']) < 5)) {
@@ -45,34 +47,48 @@
     }
 ?>
 
-<h2>Změna hesla</h2>
-<form method="post">
-    <div class="form-group">
-        <label for="old-password">Stávající heslo:</label>
-        <input type="password" name="old-password" id="old-password" required
-               class="form-control <?php echo(!empty($errors['old-password']) ? 'is-invalid' : ''); ?>"/>
-        <?php
-            echo(!empty($errors['old-password']) ? '<div class="invalid-feedback">' . $errors['old-password'] . '</div>' : '');
-        ?>
-    </div>
-    <div class="form-group">
-        <label for="password">Nové heslo:</label>
-        <input type="password" name="password" id="password" required
-               class="form-control <?php echo(!empty($errors['password']) ? 'is-invalid' : ''); ?>"/>
-        <?php
-            echo(!empty($errors['password']) ? '<div class="invalid-feedback">' . $errors['password'] . '</div>' : '');
-        ?>
-    </div>
-    <div class="form-group">
-        <label for="password2">Potvrzení nového hesla:</label>
-        <input type="password" name="password2" id="password2" required
-               class="form-control <?php echo(!empty($errors['password2']) ? 'is-invalid' : ''); ?>"/>
-        <?php
-            echo(!empty($errors['password2']) ? '<div class="invalid-feedback">' . $errors['password2'] . '</div>' : '');
-        ?>
-    </div>
-    <input type="hidden" name="password-change" value="true">
+<?php
+    $passwordSetQuery = $db->prepare('SELECT password,facebook_id FROM patients WHERE patient_id=:patient_id LIMIT 1');
+    $passwordSetQuery->execute([
+        ':patient_id' => $_SESSION['patient_id']
+    ]);
+    $passwordSet = $passwordSetQuery->fetch(PDO::FETCH_ASSOC);
 
-    <button type="submit" class="btn btn-primary">Změnit heslo</button>
-</form>
+    if ($passwordSet['password'] != '') { ?>
+        <h2>Změna hesla</h2>
+        <form method="post">
+            <div class="form-group">
+                <label for="old-password">Stávající heslo:</label>
+                <input type="password" name="old-password" id="old-password" required
+                       class="form-control <?php echo(!empty($errors['old-password']) ? 'is-invalid' : ''); ?>"/>
+                <?php
+                    echo(!empty($errors['old-password']) ? '<div class="invalid-feedback">' . $errors['old-password'] . '</div>' : '');
+                ?>
+            </div>
+            <?php
+    } else if ($passwordSet['password'] == '' && $passwordSet['facebook_id'] != '') { ?>
+        <h2>Nastavení hesla pro přihlášení přes e-mail</h2>
+        <form method="post">
+            <input type="hidden" name="new-password" value="true">
+        <?php
+    } ?>
+            <div class="form-group">
+                <label for="password">Nové heslo:</label>
+                <input type="password" name="password" id="password" required
+                       class="form-control <?php echo(!empty($errors['password']) ? 'is-invalid' : ''); ?>"/>
+                <?php
+                    echo(!empty($errors['password']) ? '<div class="invalid-feedback">' . $errors['password'] . '</div>' : '');
+                ?>
+            </div>
+            <div class="form-group">
+                <label for="password2">Potvrzení nového hesla:</label>
+                <input type="password" name="password2" id="password2" required
+                       class="form-control <?php echo(!empty($errors['password2']) ? 'is-invalid' : ''); ?>"/>
+                <?php
+                    echo(!empty($errors['password2']) ? '<div class="invalid-feedback">' . $errors['password2'] . '</div>' : '');
+                ?>
+            </div>
+            <input type="hidden" name="password-change" value="true">
 
+            <button type="submit" class="btn btn-primary">Změnit heslo</button>
+        </form>

@@ -46,26 +46,27 @@
     #endregion nacteni z db
 
     $html .= '<h1>Objednaní pacienti</h1>
-                    <h2>Lékař: ' . htmlspecialchars($_SESSION['given_name']) . ' ' . htmlspecialchars($_SESSION['family_name']) . '</h2>
-                    <p class="breadcrumb">' . date("j. n. Y") . '</p>';
+                <h2>Lékař: ' . htmlspecialchars($_SESSION['given_name']) . ' ' . htmlspecialchars($_SESSION['family_name']) . '</h2>
+                <p class="breadcrumb">' . date("j. n. Y") . '</p>';
 
     foreach ($appointments as $appointment) {
-        $html .= '<h4>Pacient: ' . htmlspecialchars($appointment['patient_given_name'] . ' ' . $appointment['patient_family_name']) . '</h4>';
+        $html .= '<h4>Pacient: ' . $appointment['patient_given_name'] . ' ' . $appointment['patient_family_name'] . '</h4>';
         $html .= '<p>';
         $html .= 'Datum a čas: ' . date("d. m. Y, H:i:s", $appointment['timestamp']) . '<br/>';
-        $html .= 'Délka návštěvy: ' . $appointment['length'] . 'minut<br/>';
+        $html .= 'Délka návštěvy: ' . $appointment['length'] . ' minut<br/>';
         $html .= '</p>';
     }
 
 
     if (empty($errors)) {
         //načteme styly ze samostatného souboru
+
         $stylesheet = file_get_contents('/home/httpd/html/users/matj27/4iz278/semestralni_prace/style/mpdfAppointmentsListA4.css');
 
         //a jdeme vytvořit PDF
-        $mpdf = new mPDF();
+        $mpdf = new mPDF;
         $mpdf->SetDisplayMode('fullpage');
-        $mpdf->WriteHTML($stylesheet, 1);//2. parametr určuje, že jde jen o styly a ne html obsah
+        //$mpdf->WriteHTML($stylesheet, 1);//2. parametr určuje, že jde jen o styly a ne html obsah
         $mpdf->WriteHTML($html);
         $mpdf->Output();
     } else {

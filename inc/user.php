@@ -1,5 +1,7 @@
 <?php
 
+    require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/vendor/autoload.php';//načtení class loaderu vytvořeného composerem
+
     if (session_status() != PHP_SESSION_ACTIVE) {
         session_start(); //spustíme session
     }

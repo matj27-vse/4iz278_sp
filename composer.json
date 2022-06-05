@@ -1,16 +1,17 @@
 {
-	"name": "matj27/4iz278_sp",
-	"description": "Semestralni prace - 4IZ278",
-	"type": "project",
-	"require": {
-		"php": ">= 7.2",
-		"mpdf/mpdf": "^8.0",
-		"facebook/graph-sdk": "^5.7"
-	},
-	"minimum-stability": "stable",
-	"config": {
-		"platform": {
-			"php": "7.2"
-		}
-	}
+  "name": "matj27/4iz278_sp",
+  "description": "Semestralni prace - 4IZ278",
+  "type": "project",
+  "require": {
+    "php": ">= 7.2",
+    "mpdf/mpdf": "^8.0",
+    "phpmailer/phpmailer": "^6.1",
+    "facebook/graph-sdk": "^5.7"
+  },
+  "minimum-stability": "stable",
+  "config": {
+    "platform": {
+      "php": "7.2"
+    }
+  }
 }
