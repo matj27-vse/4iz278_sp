@@ -8,7 +8,10 @@ const picker = MCDatepicker.create({
     customCancelBTN: 'Zrušit',
     customOkBTN: 'Zvolit',
     minDate: new Date(Date.now()),
-    dateFormat: 'dd-mmmm-yyyy'
+    dateFormat: 'dd-mmmm-yyyy',
+    theme: {
+        theme_color: '#0476D0'
+    }
     //https://mcdatepicker.netlify.app/docs/theme
 });
 

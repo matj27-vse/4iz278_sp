@@ -5,6 +5,10 @@
     $pageTitle = 'Seznam termínů';
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';
 
+    if(isset($_REQUEST['succ'])){
+        echo '<div class="alert alert-success" role="alert">'.$_REQUEST['succ'].'</div>';
+    }
+
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
 
     $orderBy = '';

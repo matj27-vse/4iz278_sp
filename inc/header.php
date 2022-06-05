@@ -26,7 +26,7 @@ if (!empty($_SESSION['user_id'])) {
     ?>
 </head>
 <body>
-    <header class="container bg-dark">
+    <header class="container" style="background-color: #0476D0">
         <h1 class="text-white py-4 px-2"><?php echo(!empty($pageTitle) ? $pageTitle : 'Objednací kalendář') ?></h1>
 
         <div class="text-right text-white">

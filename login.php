@@ -89,33 +89,33 @@
             />
             <label for="is-doctor">Přihlašuji se jako lékař</label>
         </div>
+
         <button type="submit" class="btn btn-primary">Přihlásit se</button>
+
+        <?php
+            #region přihlašování pomocí Facebooku
+            //inicializujeme helper pro vytvoření odkazu
+            $fbHelper = $fb->getRedirectLoginHelper();
+
+            //nastavení parametrů pro vyžádání oprávnění a odkaz na přesměrování po přihlášení
+            $permissions = ['email'];
+            $callbackUrl = htmlspecialchars('https://eso.vse.cz/~matj27/4iz278/semestralni_prace/fb_callback.php');
+
+            //necháme helper sestavit adresu pro odeslání požadavku na přihlášení
+            $fbLoginUrl = $fbHelper->getLoginUrl($callbackUrl, $permissions);
+
+            //vykreslíme odkaz na přihlášení
+            echo ' <a href="' . $fbLoginUrl . '" class="btn btn-primary my-1">Přihlásit se pomocí Facebooku</a>';
+            #endregion přihlašování pomocí Facebooku
+        ?>
+    </form>
+
+    <form>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/registration.php" class="btn btn-light">Registrovat
             se</a>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/forgotten_password.php" class="btn btn-light">Zapomenuté
             heslo</a>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php" class="btn btn-light">Zrušit</a>
-    </form>
-
-    <form>
-        <div class="form-group">
-            <?php
-                #region přihlašování pomocí Facebooku
-                //inicializujeme helper pro vytvoření odkazu
-                $fbHelper = $fb->getRedirectLoginHelper();
-
-                //nastavení parametrů pro vyžádání oprávnění a odkaz na přesměrování po přihlášení
-                $permissions = ['email'];
-                $callbackUrl = htmlspecialchars('https://eso.vse.cz/~matj27/4iz278/semestralni_prace/fb_callback.php');
-
-                //necháme helper sestavit adresu pro odeslání požadavku na přihlášení
-                $fbLoginUrl = $fbHelper->getLoginUrl($callbackUrl, $permissions);
-
-                //vykreslíme odkaz na přihlášení
-                echo ' <a href="' . $fbLoginUrl . '" class="btn btn-primary my-1">Přihlásit se pomocí Facebooku</a>';
-                #endregion přihlašování pomocí Facebooku
-            ?>
-        </div>
     </form>
 
 <?php

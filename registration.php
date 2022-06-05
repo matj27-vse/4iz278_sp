@@ -26,6 +26,9 @@
         }
         #endregion kontrola příjmení
 
+        $registeredWithFacebook = false;
+        $patient = null;
+
         #region kontrola emailu
         $email = trim(@$_POST['email']);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -37,7 +40,12 @@
                 ':email' => $email
             ]);
             if ($mailQuery->rowCount() > 0) {
-                $errors['email'] = 'Uživatelský účet s touto e-mailovou adresou již existuje.';
+                $patient = $mailQuery->fetch(PDO::FETCH_ASSOC);
+                if ($patient['password'] == '' && $patient['facebook_id'] != '') {
+                    $registeredWithFacebook = true;
+                } else {
+                    $errors['email'] = 'Uživatelský účet s touto e-mailovou adresou již existuje.';
+                }
             }
         }
         #endregion kontrola emailu
@@ -55,23 +63,31 @@
             //zaregistrování uživatele
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-            $query = $db->prepare('INSERT INTO patients (given_name, family_name, email, password, active) 
+            if ($registeredWithFacebook) {
+                $updateUserQuery = $db->prepare('UPDATE patients SET password=:password WHERE patient_id=:patient_id;');
+                $updateUserQuery->execute([
+                    ':patient_id' => $patient['patient_id'],
+                    ':password' => $password
+                ]);
+            } else {
+                $query = $db->prepare('INSERT INTO patients (given_name, family_name, email, password, active) 
                                             VALUES (:givenName, :familyName, :email, :password, :active);');
-            $query->execute([
-                ':givenName' => $givenName,
-                ':familyName' => $familyName,
-                ':email' => $email,
-                ':password' => $password,
-                ':active' => 1
-            ]);
+                $query->execute([
+                    ':givenName' => $givenName,
+                    ':familyName' => $familyName,
+                    ':email' => $email,
+                    ':password' => $password,
+                    ':active' => 1
+                ]);
+            }
 
             //uživatele rovnou přihlásíme
-            $_SESSION['patient_id'] = $db->lastInsertId();
-            $_SESSION['given_name'] = $givenName;
-            $_SESSION['family_name'] = $familyName;
+            $_SESSION['patient_id'] = ($patient ? $patient['patient_id'] : $db->lastInsertId());
+            $_SESSION['given_name'] = ($patient ? $patient['given_name'] : $givenName);
+            $_SESSION['family_name'] = ($patient ? $patient['family_name'] : $familyName);
 
             //přesměrování na homepage
-            header('Location: https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php');
+            header('Location: https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php?succ=Registrace byla úspěšná. Vítejte v aplikaci!');
             exit();
         }
 
@@ -86,7 +102,8 @@
     <h2>Registrace nového uživatele</h2>
 
     <div class="alert alert-info" role="alert">
-        Tento formulář slouží pro registraci pacientů. Chcete-li se registrovat jako lékař, obraťe se na správce aplikace.
+        Tento formulář slouží pro registraci pacientů. Chcete-li se registrovat jako lékař, obraťe se na správce
+        aplikace.
     </div>
 
     <form method="post">
@@ -134,7 +151,8 @@
             ?>
         </div>
         <button type="submit" class="btn btn-primary">Registrovat se</button>
-        <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/login.php" class="btn btn-light">Zpět na přihlášení</a>
+        <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/login.php" class="btn btn-light">Zpět na
+            přihlášení</a>
         <a href="https://eso.vse.cz/~matj27/4iz278/semestralni_prace/index.php" class="btn btn-light">Zrušit</a>
     </form>
 
