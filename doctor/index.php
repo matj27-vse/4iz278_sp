@@ -110,8 +110,14 @@
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <div class="form-group">
+                <?php
+                    if (isset($_REQUEST['timestamp'])) {
+                        $date = date("Y-m-d", $_REQUEST['timestamp']);
+                    }
+                ?>
                 <label for="datepicker">Zobrazit návštěvy jen v daném dni:</label>
-                <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data">
+                <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data"
+                    <?php echo(isset($date) ? 'value=' . $date : '') ?>>
 
                 <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
                 <script src="inc/datepicker_driver_list.js"></script>

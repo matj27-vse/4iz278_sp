@@ -6,8 +6,8 @@
     $pageTitle = 'Seznam termínů';
     include '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/header.php';
 
-    if(isset($_REQUEST['succ'])){
-        echo '<div class="alert alert-success" role="alert">'.$_REQUEST['succ'].'</div>';
+    if (isset($_REQUEST['succ'])) {
+        echo '<div class="alert alert-success" role="alert">' . $_REQUEST['succ'] . '</div>';
     }
 
     require_once '/home/httpd/html/users/matj27/4iz278/semestralni_prace/inc/view_appointments_patients_doctors.php';
@@ -109,8 +109,14 @@
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <div class="form-group">
+                <?php
+                    if (isset($_REQUEST['timestamp'])) {
+                        $date = date("Y-m-d", $_REQUEST['timestamp']);
+                    }
+                ?>
                 <label for="datepicker">Zobrazit návštěvy jen v daném dni:</label>
-                <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data">
+                <input name="date" id="datepicker" type="text" placeholder="Klepněte pro výběr data"
+                    <?php echo(isset($date) ? 'value=' . $date : '') ?>>
 
                 <script src="https://cdn.jsdelivr.net/npm/mc-datepicker/dist/mc-calendar.min.js"></script>
                 <script src="inc/datepicker_driver_list.js"></script>
