@@ -101,6 +101,7 @@
         $_SESSION['patient_id'] = $patient['patient_id'];
         $_SESSION['given_name'] = $patient['given_name'];
         $_SESSION['family_name'] = $patient['family_name'];
+        $_SESSION['email'] = $patient['email'];
     }
 
     //přesměrujeme pacienta na homepage

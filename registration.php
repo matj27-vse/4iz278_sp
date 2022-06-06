@@ -85,6 +85,7 @@
             $_SESSION['patient_id'] = ($patient ? $patient['patient_id'] : $db->lastInsertId());
             $_SESSION['given_name'] = ($patient ? $patient['given_name'] : $givenName);
             $_SESSION['family_name'] = ($patient ? $patient['family_name'] : $familyName);
+            $_SESSION['email']=($patient ? $patient['email'] : $email);
 
             //přesměrování na homepage
             header('Location: https://eso.vse.cz/~matj27/4iz278/semestralni_prace/patient/index.php?succ=Registrace byla úspěšná. Vítejte v aplikaci!');
